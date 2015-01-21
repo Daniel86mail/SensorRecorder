@@ -1,6 +1,8 @@
 package com.isawesome.daniel.sensorrecorder;
 
+import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,6 +16,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.opencsv.CSVWriter;
+
 import org.w3c.dom.Text;
 
 public class MainActivity extends Activity implements SensorEventListener,
@@ -24,6 +28,8 @@ public class MainActivity extends Activity implements SensorEventListener,
     private ArrayList sensorData;
     private TextView tvState, tvReading, tvRecordedData, tvRecordedItems;
     private long mTimeStamp;
+    String m_csvPath;
+    CSVWriter m_csvWriter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -77,10 +83,13 @@ public class MainActivity extends Activity implements SensorEventListener,
                 AccelData data = new AccelData(timestamp, x, y, z);
                 String output = String.format("Time(ms): %d X val: %.3f, Y val: %.3f, Z val: %.3f",timestamp, x, y, z );
                 tvRecordedData.setText(output);
-                sensorData.add(data);
-                String recordedItemNumber = String.format("Item Number: %d", sensorData.size());
-                tvRecordedItems.setText(recordedItemNumber);
+                //sensorData.add(data);
+                //String recordedItemNumber = String.format("Item Number: %d", sensorData.size());
+                //tvRecordedItems.setText(recordedItemNumber);
                 mTimeStamp = timestamp;
+
+                //save data to file
+                RecordDataToFile(data);
             }
 
             String output = String.format("Time(ms): %d X val: %.3f, Y val: %.3f, Z val: %.3f",timestamp, x, y, z );
@@ -89,8 +98,21 @@ public class MainActivity extends Activity implements SensorEventListener,
 
     }
 
+    private void RecordDataToFile(AccelData data){
+            String[] dataToWrite;
+            String time, x, y, z;
+            time =  String.format("%d",data.getTimestamp());
+            x = String.format("%.3f",data.getX());
+            y = String.format("%.3f",data.getY());
+            z = String.format("%.3f",data.getZ());
+            dataToWrite = (new String[]{time, x, y, z});
+
+        if(m_csvWriter != null)
+            m_csvWriter.writeNext(dataToWrite);
+    }
+
     @Override
-    public void onClick(View v) {
+    public  void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnStart:
                 btnStart.setEnabled(false);
@@ -98,6 +120,7 @@ public class MainActivity extends Activity implements SensorEventListener,
                 sensorData = new ArrayList();
                 // save prev data if available
                 started = true;
+                InitCSVWriter();
                 Sensor accel = sensorManager
                         .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
                 mTimeStamp = System.currentTimeMillis();
@@ -109,6 +132,7 @@ public class MainActivity extends Activity implements SensorEventListener,
                 btnStart.setEnabled(true);
                 btnStop.setEnabled(false);
                 started = false;
+                CloseCSVFile();
                 sensorManager.unregisterListener(this);
                 tvState.setText("Stopped");
                 break;
@@ -116,5 +140,23 @@ public class MainActivity extends Activity implements SensorEventListener,
                 break;
         }
 
+    }
+
+    private void InitCSVWriter(){
+        try{
+            m_csvPath = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
+            m_csvWriter = new CSVWriter(new FileWriter(m_csvPath));
+        }
+        catch(java.io.IOException e) {
+        }
+    }
+
+    private void CloseCSVFile(){
+        try{
+            if(m_csvWriter != null)
+                 m_csvWriter.close();
+        }
+        catch(java.io.IOException e) {
+        }
     }
 }
