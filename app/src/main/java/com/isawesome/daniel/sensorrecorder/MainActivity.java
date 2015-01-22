@@ -1,5 +1,6 @@
 package com.isawesome.daniel.sensorrecorder;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -28,7 +30,7 @@ public class MainActivity extends Activity implements SensorEventListener,
     private ArrayList sensorData;
     private TextView tvState, tvReading, tvRecordedData, tvRecordedItems;
     private long mTimeStamp;
-    String m_csvPath;
+    File m_csvPath;
     CSVWriter m_csvWriter;
     int counter = 0;
 
@@ -149,14 +151,22 @@ public class MainActivity extends Activity implements SensorEventListener,
 
     private void InitCSVWriter(){
         try{
-            m_csvPath = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
-            m_csvWriter = new CSVWriter(new FileWriter(m_csvPath+"\test.csv"));
+            m_csvPath = Environment.getExternalStorageDirectory();
+            File file = new File(m_csvPath, "test.csv");
+            if(m_csvPath.canWrite()) {
+                FileWriter writer = new FileWriter(file, true);
+                m_csvWriter = new CSVWriter(writer);
+            }
             if (m_csvWriter == null)
                 throw new Exception("null");
         }
         catch(java.io.IOException e) {
+
+            //dostuff
+
         }
         catch(Exception e) {
+            //do stuff
         }
 
     }
