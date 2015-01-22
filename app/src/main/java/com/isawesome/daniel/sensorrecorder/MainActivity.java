@@ -30,6 +30,7 @@ public class MainActivity extends Activity implements SensorEventListener,
     private long mTimeStamp;
     String m_csvPath;
     CSVWriter m_csvWriter;
+    int counter = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -107,8 +108,12 @@ public class MainActivity extends Activity implements SensorEventListener,
             z = String.format("%.3f",data.getZ());
             dataToWrite = (new String[]{time, x, y, z});
 
-        if(m_csvWriter != null)
+        if(m_csvWriter != null) {
             m_csvWriter.writeNext(dataToWrite);
+            counter++;
+            String recordedItemNumber = String.format("Item Number: %d", counter);
+            tvRecordedItems.setText(recordedItemNumber);
+        }
     }
 
     @Override
@@ -145,10 +150,15 @@ public class MainActivity extends Activity implements SensorEventListener,
     private void InitCSVWriter(){
         try{
             m_csvPath = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
-            m_csvWriter = new CSVWriter(new FileWriter(m_csvPath));
+            m_csvWriter = new CSVWriter(new FileWriter(m_csvPath+"\test.csv"));
+            if (m_csvWriter == null)
+                throw new Exception("null");
         }
         catch(java.io.IOException e) {
         }
+        catch(Exception e) {
+        }
+
     }
 
     private void CloseCSVFile(){
