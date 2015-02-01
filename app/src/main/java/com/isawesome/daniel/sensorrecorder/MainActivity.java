@@ -12,16 +12,21 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements SensorEventListener,
         OnClickListener {
+
+    private static final int DEFAULT_SAMPLE_RESOLUTION = 500;
     private SensorManager sensorManager;
     private Button btnStart, btnStop;
     private boolean started = false;
     private ArrayList sensorData;
     private TextView tvState, tvReading, tvRecordedData, tvRecordedItems;
+    private EditText etSampleResolution;
     private long mAccelTimeStamp, mGyroTimeStamp;
+    private int sampleResolution;
     int counter = 0;
     Logger log;
 
@@ -83,6 +88,9 @@ public class MainActivity extends Activity implements SensorEventListener,
             case R.id.btnStart:
                 btnStart.setEnabled(false);
                 btnStop.setEnabled(true);
+                sampleResolution = Integer.parseInt(etSampleResolution.getText().toString());
+                if(sampleResolution<50)
+                    sampleResolution = 500;
                 counter = 0 ;
                 // save prev data if available
                 started = true;
@@ -116,17 +124,21 @@ public class MainActivity extends Activity implements SensorEventListener,
         tvReading = (TextView) findViewById(R.id.tvReading);
         tvRecordedData = (TextView) findViewById(R.id.tvRecordedData);
         tvRecordedItems = (TextView) findViewById(R.id.tvRecordedItems);
+        etSampleResolution = (EditText) findViewById(R.id.etSampleResolution);
         btnStart.setOnClickListener(this);
         btnStop.setOnClickListener(this);
         btnStart.setEnabled(true);
         btnStop.setEnabled(false);
+
+        sampleResolution = DEFAULT_SAMPLE_RESOLUTION;
+        etSampleResolution.setText(sampleResolution);
     }
 
     private void HandleAccel(SensorEvent event){
 
         AccelData data = new AccelData(System.currentTimeMillis(), event.values[0], event.values[1], event.values[2]);
 
-        if(data.getTimestamp() > mAccelTimeStamp + 1000) {
+        if(data.getTimestamp() > mAccelTimeStamp + sampleResolution) {
             //record every 1 second
             String output = String.format("Time(ms): %d X val: %.3f, Y val: %.3f, Z val: %.3f",data.getTimestamp(), data.getX(), data.getY(), data.getZ() );
             tvRecordedData.setText(output);
@@ -146,7 +158,7 @@ public class MainActivity extends Activity implements SensorEventListener,
 
         GyroData data = new GyroData(System.currentTimeMillis(), event.values[0], event.values[1], event.values[2]);
 
-        if(data.getTimestamp() > mGyroTimeStamp + 1000) {
+        if(data.getTimestamp() > mGyroTimeStamp + sampleResolution) {
             //record every 1 second
             String output = String.format("Time(ms): %d X val: %.3f, Y val: %.3f, Z val: %.3f",data.getTimestamp(), data.getX(), data.getY(), data.getZ() );
             tvRecordedData.setText(output);

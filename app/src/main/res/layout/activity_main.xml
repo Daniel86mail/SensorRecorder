@@ -59,10 +59,10 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Recorded Data"
         android:id="@+id/tvRecordedData"
-        android:layout_marginTop="49dp"
-        android:layout_below="@+id/tvReading"
-        android:layout_alignLeft="@+id/tvReading"
-        android:layout_alignStart="@+id/tvReading" />
+        android:layout_marginTop="21dp"
+        android:layout_below="@+id/etSampleResolution"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -70,9 +70,31 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="RecordedItems"
         android:id="@+id/tvRecordedItems"
-        android:layout_marginTop="34dp"
-        android:layout_below="@+id/tvRecordedData"
-        android:layout_alignLeft="@+id/tvRecordedData"
-        android:layout_alignStart="@+id/tvRecordedData" />
+        android:layout_marginBottom="27dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:ems="10"
+        android:id="@+id/etSampleResolution"
+        android:layout_marginLeft="36dp"
+        android:layout_marginStart="36dp"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/tvSampleResolutionText"
+        android:layout_toEndOf="@+id/tvSampleResolutionText" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Sample Resolution"
+        android:id="@+id/tvSampleResolutionText"
+        android:layout_alignBottom="@+id/etSampleResolution"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>
