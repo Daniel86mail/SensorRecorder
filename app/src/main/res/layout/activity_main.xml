@@ -64,4 +64,14 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Take Picture"
+        android:id="@+id/btnTakePic"
+        android:layout_alignBottom="@+id/tvState"
+        android:layout_alignLeft="@+id/tvMainTitle"
+        android:layout_alignStart="@+id/tvMainTitle"
+        android:onClick="onClick" />
+
 </RelativeLayout>

@@ -22,7 +22,7 @@ public class Logger {
     public void InitCSVWriter(){
         try{
 
-            File folder = new File(Environment.getExternalStorageDirectory() + "/SensorRecorder");
+            File folder = new File(Environment.getExternalStorageDirectory() + "/SensorRecorder");//make this common to Logger and camera Handler
             boolean success = true;
             if (!folder.exists()) {
                 success = folder.mkdir();
