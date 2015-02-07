@@ -5,8 +5,8 @@ package com.isawesome.daniel.sensorrecorder;
  */
 public class AccelData extends SensorData {
 
-        public AccelData(long timestamp, double x, double y, double z){
-            super(timestamp, x, y, z, "Accel");
+        public AccelData(int sessionId, long timestamp, double x, double y, double z){
+            super(sessionId, timestamp, x, y, z, "Accel");
         }
 
 

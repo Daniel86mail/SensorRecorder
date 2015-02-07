@@ -4,13 +4,15 @@ package com.isawesome.daniel.sensorrecorder;
  * Created by Daniel on 15/01/2015.
  */
 public class SensorData {
+    private int sessionId;
     private long timestamp;
     private double x;
     private double y;
     private double z;
     private String sensorName;
 
-    public SensorData(long timestamp, double x, double y, double z) {
+    public SensorData(int sessionId, long timestamp, double x, double y, double z) {
+        this.sessionId = sessionId;
         this.timestamp = timestamp;
         this.x = x;
         this.y = y;
@@ -18,7 +20,8 @@ public class SensorData {
         this.sensorName="Default";
     }
 
-    public SensorData(long timestamp, double x, double y, double z, String sensorName) {
+    public SensorData(int sessionId, long timestamp, double x, double y, double z, String sensorName) {
+        this.sessionId = sessionId;
         this.timestamp = timestamp;
         this.x = x;
         this.y = y;
@@ -58,4 +61,7 @@ public class SensorData {
     public String GetSensorName(){
         return sensorName;
     }
+
+    public String GetSessionId(){
+        return String.valueOf(sessionId);}
 }

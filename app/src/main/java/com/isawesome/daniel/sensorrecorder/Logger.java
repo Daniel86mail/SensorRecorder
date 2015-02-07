@@ -71,7 +71,7 @@ public class Logger {
         y = String.format("%.3f",data.getY());
         z = String.format("%.3f",data.getZ());
         sensorName = data.GetSensorName();
-        dataToWrite = (new String[]{time, sensorName, x, y, z});
+        dataToWrite = (new String[]{data.GetSessionId(), time, sensorName, x, y, z});
 
         if(m_csvWriter != null) {
             m_csvWriter.writeNext(dataToWrite);

@@ -29,10 +29,10 @@
         android:layout_height="wrap_content"
         android:text="Stop"
         android:id="@+id/btnStop"
-        android:layout_below="@+id/btnStart"
+        android:onClick="onClick"
+        android:layout_below="@+id/tvState"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:onClick="onClick" />
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -41,39 +41,8 @@
         android:text="Idle"
         android:id="@+id/tvState"
         android:layout_below="@+id/btnStart"
-        android:layout_toRightOf="@+id/tvRecordedData"
-        android:layout_toEndOf="@+id/tvRecordedData" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sensor output"
-        android:id="@+id/tvReading"
-        android:layout_below="@+id/btnStop"
-        android:layout_alignLeft="@+id/btnStop"
-        android:layout_alignStart="@+id/btnStop" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Recorded Data"
-        android:id="@+id/tvRecordedData"
-        android:layout_marginTop="21dp"
-        android:layout_below="@+id/etSampleResolution"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="RecordedItems"
-        android:id="@+id/tvRecordedItems"
-        android:layout_marginBottom="27dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_toRightOf="@+id/tvSampleResolutionText"
+        android:layout_toEndOf="@+id/tvSampleResolutionText" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -81,11 +50,9 @@
         android:inputType="numberDecimal"
         android:ems="10"
         android:id="@+id/etSampleResolution"
-        android:layout_marginLeft="36dp"
-        android:layout_marginStart="36dp"
-        android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/tvSampleResolutionText"
-        android:layout_toEndOf="@+id/tvSampleResolutionText" />
+        android:layout_below="@+id/btnStop"
+        android:layout_alignLeft="@+id/tvState"
+        android:layout_alignStart="@+id/tvState" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -93,7 +60,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Sample Resolution"
         android:id="@+id/tvSampleResolutionText"
-        android:layout_alignBottom="@+id/etSampleResolution"
+        android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 

@@ -19,6 +19,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service
+            android:enabled="true"
+            android:name="com.isawesome.daniel.sensorrecorder.SensorSampleService"
+            >
+        </service>
     </application>
 
 

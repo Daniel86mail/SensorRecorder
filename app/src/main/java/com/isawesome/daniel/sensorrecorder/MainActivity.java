@@ -14,8 +14,9 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.content.Intent;
 
-public class MainActivity extends Activity implements SensorEventListener,
+public class MainActivity extends Activity implements
         OnClickListener {
 
     private static final int DEFAULT_SAMPLE_RESOLUTION = 500;
@@ -23,22 +24,22 @@ public class MainActivity extends Activity implements SensorEventListener,
     private Button btnStart, btnStop;
     private boolean started = false;
     private ArrayList sensorData;
-    private TextView tvState, tvReading, tvRecordedData, tvRecordedItems;
+    private TextView tvState;//, tvReading, tvRecordedData, tvRecordedItems;
     private EditText etSampleResolution;
-    private long mAccelTimeStamp, mGyroTimeStamp;
+
+    Intent intent;
     private int sampleResolution;
-    int counter = 0;
     Logger log;
+    private int m_sessionId;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
         InitGUIItems();
-        log = new Logger();
-
+        intent = new Intent(getApplicationContext(), SensorSampleService.class );
+        m_sessionId =0;
 
     }
 
@@ -46,69 +47,36 @@ public class MainActivity extends Activity implements SensorEventListener,
     protected void onResume() {
         super.onResume();
 
-        log.InitCSVWriter();
-
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (started == true) {
-            sensorManager.unregisterListener(this);
-        }
-        log.CloseCSVFile();
     }
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
-    }
 
     @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (started) {
-            int sensorType = event.sensor.getType();
-            switch(sensorType){
-                case Sensor.TYPE_ACCELEROMETER:
-                    HandleAccel(event);
-                    break;
-                case Sensor.TYPE_GYROSCOPE:
-                    HandleGyro(event);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-    }
-
-    @Override
-    public  void onClick(View v) {
+    public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnStart:
                 btnStart.setEnabled(false);
                 btnStop.setEnabled(true);
                 sampleResolution = Integer.parseInt(etSampleResolution.getText().toString());
-                if(sampleResolution<50)
-                    sampleResolution = 500;
-                counter = 0 ;
-                // save prev data if available
                 started = true;
-                Sensor accel = sensorManager
-                        .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-                sensorManager.registerListener(this, accel,
-                SensorManager.SENSOR_DELAY_FASTEST);
-                Sensor gyro = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-                sensorManager.registerListener(this, gyro, SensorManager.SENSOR_DELAY_FASTEST);
-                mAccelTimeStamp = System.currentTimeMillis();
-                mGyroTimeStamp = System.currentTimeMillis();
+                m_sessionId++;
+                intent.putExtra("sessionId", m_sessionId);
+                intent.putExtra("startListening", true);
+                intent.putExtra("sampleResolution", sampleResolution);
+                startService(intent);
                 tvState.setText("Started");
                 break;
             case R.id.btnStop:
                 btnStart.setEnabled(true);
                 btnStop.setEnabled(false);
                 started = false;
-                sensorManager.unregisterListener(this);
+                intent.putExtra("startListening", false);
+                startService(intent);
                 tvState.setText("Stopped");
                 break;
             default:
@@ -121,9 +89,6 @@ public class MainActivity extends Activity implements SensorEventListener,
         btnStart = (Button) findViewById(R.id.btnStart);
         btnStop = (Button) findViewById(R.id.btnStop);
         tvState = (TextView) findViewById((R.id.tvState));
-        tvReading = (TextView) findViewById(R.id.tvReading);
-        tvRecordedData = (TextView) findViewById(R.id.tvRecordedData);
-        tvRecordedItems = (TextView) findViewById(R.id.tvRecordedItems);
         etSampleResolution = (EditText) findViewById(R.id.etSampleResolution);
         btnStart.setOnClickListener(this);
         btnStop.setOnClickListener(this);
@@ -131,46 +96,7 @@ public class MainActivity extends Activity implements SensorEventListener,
         btnStop.setEnabled(false);
 
         sampleResolution = DEFAULT_SAMPLE_RESOLUTION;
-        etSampleResolution.setText(sampleResolution);
-    }
+        etSampleResolution.setText(String.valueOf(sampleResolution));
+}
 
-    private void HandleAccel(SensorEvent event){
-
-        AccelData data = new AccelData(System.currentTimeMillis(), event.values[0], event.values[1], event.values[2]);
-
-        if(data.getTimestamp() > mAccelTimeStamp + sampleResolution) {
-            //record every 1 second
-            String output = String.format("Time(ms): %d X val: %.3f, Y val: %.3f, Z val: %.3f",data.getTimestamp(), data.getX(), data.getY(), data.getZ() );
-            tvRecordedData.setText(output);
-            mAccelTimeStamp = data.getTimestamp();
-            counter++;
-            String counterOutput = String.format("Number of Recorded Items is: %d",counter);
-            tvRecordedItems.setText(counterOutput);
-            //save data to file
-            log.RecordDataToFile(data);
-        }
-
-        String output1 = String.format("Time(ms): %d X val: %.3f, Y val: %.3f, Z val: %.3f",data.getTimestamp(), data.getX(), data.getY(), data.getZ() );
-        tvReading.setText(output1);
-    }
-
-    private void HandleGyro(SensorEvent event){
-
-        GyroData data = new GyroData(System.currentTimeMillis(), event.values[0], event.values[1], event.values[2]);
-
-        if(data.getTimestamp() > mGyroTimeStamp + sampleResolution) {
-            //record every 1 second
-            String output = String.format("Time(ms): %d X val: %.3f, Y val: %.3f, Z val: %.3f",data.getTimestamp(), data.getX(), data.getY(), data.getZ() );
-            tvRecordedData.setText(output);
-            mGyroTimeStamp = data.getTimestamp();
-            counter++;
-            String counterOutput = String.format("Number of Recorded Items is: %d",counter);
-            tvRecordedItems.setText(counterOutput);
-            //save data to file
-            log.RecordDataToFile(data);
-        }
-
-        String output1 = String.format("Time(ms): %d X val: %.3f, Y val: %.3f, Z val: %.3f",data.getTimestamp(), data.getX(), data.getY(), data.getZ() );
-        tvReading.setText(output1);
-    }
 }
