@@ -10,6 +10,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 
 public class MainActivity extends Activity implements
         OnClickListener {
@@ -24,6 +26,8 @@ public class MainActivity extends Activity implements
     Intent intent;
     private int sampleResolution;
     private int m_sessionId;
+    private SharedPreferences m_pref;
+    private Editor m_prefEditor;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -32,8 +36,7 @@ public class MainActivity extends Activity implements
 
         InitGUIItems();
         intent = new Intent(getApplicationContext(), SensorSampleService.class );
-        m_sessionId =0;
-
+        InitSharedPreferences();
         m_cameraHandler = new CameraHandler();
 
     }
@@ -47,6 +50,15 @@ public class MainActivity extends Activity implements
     @Override
     protected void onPause() {
         super.onPause();
+        if(started && !m_cameraHandler.GetActivityCallStatus())
+            StopClick();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(started)
+            StopClick();
     }
 
 
@@ -55,34 +67,42 @@ public class MainActivity extends Activity implements
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnStart:
-                btnStart.setEnabled(false);
-                btnStop.setEnabled(true);
-                sampleResolution = Integer.parseInt(etSampleResolution.getText().toString());
-                started = true;
-                m_sessionId++;
-                intent.putExtra("sessionId", m_sessionId);
-                intent.putExtra("startListening", true);
-                intent.putExtra("sampleResolution", sampleResolution);
-                startService(intent);
-                btnTakePic.setEnabled(true);
-                tvState.setText("Started");
+                StartClick();
                 break;
             case R.id.btnStop:
-                btnStart.setEnabled(true);
-                btnStop.setEnabled(false);
-                started = false;
-                intent.putExtra("startListening", false);
-                startService(intent);
-                btnTakePic.setEnabled(false);
-                tvState.setText("Stopped");
+                StopClick();
                 break;
             case R.id.btnTakePic:
-                m_cameraHandler.TakePictureAction(m_sessionId, this);
+                m_cameraHandler.TakePictureAction(GetSessionId(), this);
                 break;
             default:
                 break;
         }
 
+    }
+
+    private void StartClick(){
+        btnStart.setEnabled(false);
+        btnStop.setEnabled(true);
+        sampleResolution = Integer.parseInt(etSampleResolution.getText().toString());
+        started = true;
+        intent.putExtra("sessionId", GetSessionId());
+        intent.putExtra("startListening", true);
+        intent.putExtra("sampleResolution", sampleResolution);
+        startService(intent);
+        btnTakePic.setEnabled(true);
+        tvState.setText("Started");
+    }
+
+    private void StopClick(){
+        btnStart.setEnabled(true);
+        btnStop.setEnabled(false);
+        started = false;
+        intent.putExtra("startListening", false);
+        startService(intent);
+        btnTakePic.setEnabled(false);
+        IncrementSessionId();
+        tvState.setText("Stopped");
     }
 
     private void InitGUIItems() {
@@ -99,6 +119,22 @@ public class MainActivity extends Activity implements
 
         sampleResolution = DEFAULT_SAMPLE_RESOLUTION;
         etSampleResolution.setText(String.valueOf(sampleResolution));
-}
+    }
+
+    private void InitSharedPreferences(){
+        m_pref = getApplicationContext().getSharedPreferences("SensorRecorderPref", 0);
+        m_prefEditor = m_pref.edit();
+    }
+
+    private int GetSessionId(){
+        return m_pref.getInt("sessionId", 0);
+    }
+
+    private void IncrementSessionId(){
+        int currentValue = GetSessionId();
+        currentValue++;
+        m_prefEditor.putInt("sessionId", currentValue);
+        m_prefEditor.commit();
+    }
 
 }

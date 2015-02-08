@@ -20,10 +20,12 @@ import android.app.Activity;
 
 public class CameraHandler {
 
-    static final int REQUEST_TAKE_PHOTO = 1;
-    String mCurrentPhotoPath;
+    private static final int REQUEST_TAKE_PHOTO = 1;
+    private String mCurrentPhotoPath;
+    private Boolean m_callToActivity;
 
     public void TakePictureAction(int sessionId, Context context){
+        m_callToActivity = true;
         dispatchTakePictureIntent(sessionId, context);
     }
 
@@ -68,7 +70,12 @@ public class CameraHandler {
                         Uri.fromFile(photoFile));
                 Activity callerActivity = (Activity) context;
                 callerActivity.startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                m_callToActivity = false;
             }
         }
+    }
+
+    public boolean GetActivityCallStatus(){
+        return m_callToActivity;
     }
 }
