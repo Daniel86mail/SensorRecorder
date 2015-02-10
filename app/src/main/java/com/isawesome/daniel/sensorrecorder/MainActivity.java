@@ -16,6 +16,7 @@ import android.content.SharedPreferences.Editor;
 public class MainActivity extends Activity implements
         OnClickListener {
 
+    private static final int REQUEST_TAKE_PHOTO = 1;
     private static final int DEFAULT_SAMPLE_RESOLUTION = 500;
     private Button btnStart, btnStop, btnTakePic;
     private boolean started = false;
@@ -59,6 +60,13 @@ public class MainActivity extends Activity implements
         super.onDestroy();
         if(started)
             StopClick();
+    }
+
+    //need to do the override here because m_cameraHandler is not an activity and cannot get the result
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if((m_cameraHandler != null) && (requestCode == REQUEST_TAKE_PHOTO))
+            m_cameraHandler.onActivityResult(requestCode, resultCode, data);
     }
 
 

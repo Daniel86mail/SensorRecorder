@@ -18,15 +18,18 @@ import android.app.Activity;
 
 
 
-public class CameraHandler {
+public class CameraHandler extends MainActivity{
 
     private static final int REQUEST_TAKE_PHOTO = 1;
     private String mCurrentPhotoPath;
     private Boolean m_callToActivity;
+    private String m_photoFileName;
+    private Context m_callerContext;
 
     public void TakePictureAction(int sessionId, Context context){
         m_callToActivity = true;
-        dispatchTakePictureIntent(sessionId, context);
+        m_callerContext = context;
+        dispatchTakePictureIntent(sessionId);
     }
 
 
@@ -53,10 +56,10 @@ public class CameraHandler {
 
 
 
-    private void dispatchTakePictureIntent(int sessionId, Context context) {
+    private void dispatchTakePictureIntent(int sessionId) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(context.getPackageManager()) != null) {
+        if (takePictureIntent.resolveActivity(m_callerContext.getPackageManager()) != null) {
             // Create the File where the photo should go
             File photoFile = null;
             try {
@@ -68,14 +71,29 @@ public class CameraHandler {
             if (photoFile != null) {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
                         Uri.fromFile(photoFile));
-                Activity callerActivity = (Activity) context;
-                callerActivity.startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-                m_callToActivity = false;
+                m_photoFileName = photoFile.getName();
+                Activity caller = (Activity) m_callerContext;
+                caller.startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
         }
     }
 
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == Activity.RESULT_OK) {
+            SendBroadcast(true, m_photoFileName, m_callerContext);
+        }
+        m_callToActivity = false;
+    }
+
     public boolean GetActivityCallStatus(){
         return m_callToActivity;
+    }
+
+
+    private void SendBroadcast(Boolean result, String Msg, Context context){
+        Intent i = new Intent();
+        i.setAction("CameraHandler.PictureTaken");
+        i.putExtra("FileName", Msg);
+        context.sendBroadcast(i);
     }
 }

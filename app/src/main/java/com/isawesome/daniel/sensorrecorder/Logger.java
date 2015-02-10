@@ -15,21 +15,17 @@ public class Logger {
     File m_csvPath;
     CSVWriter m_csvWriter;
 
-    public Logger(){
-        InitCSVWriter();
-    }
-
-    public void InitCSVWriter(){
+    public void InitCSVWriter(int sessionId){
         try{
-
-            File folder = new File(Environment.getExternalStorageDirectory() + "/SensorRecorder");//make this common to Logger and camera Handler
+            String sessionFolder = String.format("Session_%d" , sessionId);
+            File folder = new File(Environment.getExternalStorageDirectory() + "/SensorRecorder/"+sessionFolder);//make this common to Logger and camera Handler
             boolean success = true;
             if (!folder.exists()) {
                 success = folder.mkdir();
             }
             if (success) {
                 m_csvPath = folder;
-                File file = new File(m_csvPath, "SensorRecorder.csv");
+                File file = new File(m_csvPath, "SensorRecorder"+"_"+sessionFolder+".csv");
                 if(m_csvPath.canWrite()) {
                     FileWriter writer = new FileWriter(file, true);
                     m_csvWriter = new CSVWriter(writer);
@@ -62,7 +58,7 @@ public class Logger {
         catch(java.io.IOException e) {
         }
     }
-
+///
     public void RecordDataToFile(SensorData data){
         String[] dataToWrite;
         String time, x, y, z, sensorName;
@@ -71,9 +67,16 @@ public class Logger {
         y = String.format("%.3f",data.getY());
         z = String.format("%.3f",data.getZ());
         sensorName = data.GetSensorName();
-        dataToWrite = (new String[]{data.GetSessionId(), time, sensorName, x, y, z});
+        dataToWrite = (new String[]{time, sensorName, x, y, z});
 
         if(m_csvWriter != null) {
+            m_csvWriter.writeNext(dataToWrite);
+        }
+    }
+
+    public void RecordEventToFile(String eventToLog) {
+        String[] dataToWrite = (new String[]{String.valueOf(System.currentTimeMillis()), eventToLog});
+        if (m_csvWriter != null) {
             m_csvWriter.writeNext(dataToWrite);
         }
     }

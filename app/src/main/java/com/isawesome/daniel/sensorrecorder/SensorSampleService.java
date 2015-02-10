@@ -7,6 +7,9 @@ import android.hardware.SensorManager;
 import android.hardware.Sensor;
 import android.content.Intent;
 import android.os.IBinder;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.IntentFilter;
 
 /**
  * Created by Daniel on 06/02/2015.
@@ -30,6 +33,17 @@ public class SensorSampleService extends Service implements SensorEventListener 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         m_log = new Logger();
         m_serviceStarted = false;
+
+        //register Intent filters
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("CameraHandler.PictureTaken");
+        registerReceiver(receiver, filter);
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        unregisterReceiver(receiver);
     }
 
     @Override
@@ -49,7 +63,7 @@ public class SensorSampleService extends Service implements SensorEventListener 
             m_accelTimeStamp = System.currentTimeMillis();
             m_gyroTimeStamp = System.currentTimeMillis();
 
-            m_log.InitCSVWriter();
+            m_log.InitCSVWriter(m_sessionId);
 
             m_sampleResolution = intent.getExtras().getInt("sampleResolution");
             if (m_sampleResolution < 50)
@@ -120,5 +134,14 @@ public class SensorSampleService extends Service implements SensorEventListener 
         }
     }
 
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if(action.equals("CameraHandler.PictureTaken")){
+                m_log.RecordEventToFile("PictureTaken: "+intent.getExtras().get("FileName") );
+            }
+            }
+    };
 
 }
