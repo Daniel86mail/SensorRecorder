@@ -18,6 +18,7 @@ public class Logger {
     public void InitCSVWriter(int sessionId){
         try{
             String sessionFolder = String.format("Session_%d" , sessionId);
+            CheckBaseFolder();
             File folder = new File(Environment.getExternalStorageDirectory() + "/SensorRecorder/"+sessionFolder);//make this common to Logger and camera Handler
             boolean success = true;
             if (!folder.exists()) {
@@ -46,6 +47,14 @@ public class Logger {
             //do stuff
         }
 
+    }
+
+    private void CheckBaseFolder(){
+        File folder = new File(Environment.getExternalStorageDirectory() + "/SensorRecorder");
+        boolean success = true;
+        if (!folder.exists()) {
+            success = folder.mkdir();
+        }
     }
 
     public void CloseCSVFile(){
